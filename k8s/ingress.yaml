@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: containerize-angular-app-ingress
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /containerize-angular-app/$2
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: containerize-angular-app.dev
+      http:
+        paths:
+          - path: /containerize-angular-app(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: containerize-angular-app-service
+                port:
+                  number: 80
