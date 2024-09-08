@@ -31,5 +31,11 @@ pipeline {
             }
         }
 
+        stage('Docker Build Image') {
+            steps {
+                sh "docker build -t containerize-angular-app:${VERSION} ."
+            }
+        }
+
     }
 }
