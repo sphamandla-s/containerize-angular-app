@@ -8,7 +8,7 @@ pipeline {
     }
 
     parameters {
-        choice(name: 'ENVIRONMENT', choices: ['DEV', 'TST', 'PRE', 'PROD'], description: 'Deployment Environment')
+        choice(name: 'ENVIRONMENT', choices: ['development', 'tst', 'pre', 'production'], description: 'Deployment Environment')
     }
 
     stages {
@@ -26,25 +26,8 @@ pipeline {
 
         stage('Build Angular App') {
             steps {
-                    def config = ''
-
-                    switch (params.ENVIRONMENT) {
-                        case 'DEV':
-                            config = 'development'
-                            break
-                        case 'TST':
-                            config = 'tst'
-                            break
-                        case 'PRE':
-                            config = 'pre'
-                            break
-                        case 'PROD':
-                            config = 'production'
-                            break
-                        default:
-                            error "Unknown environment: ${params.ENVIRONMENT}"
-                    }
-                sh "ng build --configuration ${config} --base-href /containerize-angular-app/"
+                
+                sh "ng build --configuration ${params.ENVIRONMENT} --base-href /containerize-angular-app/"
             }
         }
 
