@@ -26,7 +26,25 @@ pipeline {
 
         stage('Build Angular App') {
             steps {
-                sh "ng build --configuration ${params.ENVIRONMENT} --base-href /containerize-angular-app/"
+                    def config = ''
+
+                    switch (params.ENVIRONMENT) {
+                        case 'DEV':
+                            config = 'development'
+                            break
+                        case 'TST':
+                            config = 'tst'
+                            break
+                        case 'PRE':
+                            config = 'pre'
+                            break
+                        case 'PROD':
+                            config = 'production'
+                            break
+                        default:
+                            error "Unknown environment: ${params.ENVIRONMENT}"
+                    }
+                sh "ng build --configuration ${config} --base-href /containerize-angular-app/"
             }
         }
 
