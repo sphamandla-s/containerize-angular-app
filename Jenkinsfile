@@ -6,73 +6,57 @@ pipeline {
     }
 
     environment {
-        DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials') // Docker Hub credentials stored in Jenkins
-        IMAGE_NAME = "your-dockerhub-username/containerize-angular-app:${ENVIRONMENT}"
+        DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials')
+        IMAGE_NAME = "sphamandla38/containerize-angular-app:${BUILD_NUMBER}"
     }
 
     stages {
         stage('Clone Repository') {
             steps {
-                // Clone the repository (Jenkins does this automatically with "Pipeline script from SCM")
                 echo 'Repository cloned by Jenkins SCM'
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                // Install npm dependencies
                 sh 'npm install'
             }
         }
 
         stage('Build Angular App') {
             steps {
-                script {
-                    // Build Angular app based on the selected environment
-                    sh "ng build --configuration ${params.ENVIRONMENT} --base-href /containerize-angular-app/"
-                }
+                sh "ng build --configuration ${params.ENVIRONMENT} --base-href /containerize-angular-app/"
             }
         }
 
-        stage('Dockerize') {
+        stage('Docker Build Image') {
             steps {
-                script {
-                    // Build Docker image
-                    sh """
-                    docker build -t ${env.IMAGE_NAME} .
-                    """
-                }
+                sh 'docker build -t containerize-angular-app ./.dockerfiles' // Replace with the actual context directory
             }
         }
 
-        stage('Push to DockerHub') {
+        stage('Push to Docker Hub') {
             steps {
-                script {
-                    // Log in to DockerHub and push the Docker image
-                    sh """
-                    echo ${env.DOCKER_HUB_CREDENTIALS_PSW} | docker login -u ${env.DOCKER_HUB_CREDENTIALS_USR} --password-stdin
-                    docker push ${env.IMAGE_NAME}
-                    """
+                withCredentials([string(credentialsId: 'docker-hub-access-token', variable: 'DOCKER_ACCESS_TOKEN')]) {
+                    sh '''
+                    echo $DOCKER_ACCESS_TOKEN | docker login -u sphamandla38 --password-stdin
+                    docker tag containerize-angular-app sphamandla38/containerize-angular-app:${BUILD_NUMBER}
+                    docker push sphamandla38/containerize-angular-app:${BUILD_NUMBER}
+                    '''
                 }
             }
         }
 
-        // stage('Deploy') {
-        //     steps {
-        //         script {
-        //             // Assuming you have Kubernetes set up for deployment
-        //             sh """
-        //             kubectl set image deployment/containerize-angular-app containerize-angular-app=${env.IMAGE_NAME} --namespace=${params.ENVIRONMENT}
-        //             """
-        //         }
-        //     }
-        // }
+        stage('Deploy') {
+            steps {
+                echo 'We will deploy to k8s later'
+            }
+        }
     }
 
     post {
         always {
-            // Cleanup Docker images locally
-            sh 'docker rmi ${env.IMAGE_NAME}'
+            sh 'docker rmi sphamandla38/containerize-angular-app:${BUILD_NUMBER}'
         }
     }
 }
