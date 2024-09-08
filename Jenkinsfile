@@ -6,7 +6,7 @@ pipeline {
     }
 
     environment {
-        DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials')
+        DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials') // Ensure this is the correct ID of your Docker Hub credentials in Jenkins
         IMAGE_NAME = "sphamandla38/containerize-angular-app:${BUILD_NUMBER}"
     }
 
@@ -56,7 +56,9 @@ pipeline {
 
     post {
         always {
-            sh 'docker rmi sphamandla38/containerize-angular-app:${BUILD_NUMBER}'
+            node {
+                sh 'docker rmi sphamandla38/containerize-angular-app:${BUILD_NUMBER}'
+            }
         }
     }
 }
