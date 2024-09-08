@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        // Make sure the 'package.json' file is present in the workspace
         package_json_data = readJSON file: 'package.json'
         VERSION = "${package_json_data.version}"
     }
@@ -26,7 +25,6 @@ pipeline {
 
         stage('Build Angular App') {
             steps {
-                
                 sh "ng build --configuration ${params.ENVIRONMENT} --base-href /containerize-angular-app/"
             }
         }
@@ -37,5 +35,14 @@ pipeline {
             }
         }
 
+        stage('Push Image to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    sh "docker login -u $USERNAME -p \$PASSWORD"
+                    sh "docker tag containerize-angular-app:${VERSION} $USERNAME/containerize-angular-app:${VERSION}"
+                    sh "docker push $USERNAME/containerize-angular-app:${VERSION}"
+                }
+            }
+        }
     }
 }
