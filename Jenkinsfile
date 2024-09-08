@@ -35,12 +35,13 @@ pipeline {
             }
         }
 
+
         stage('Push Image to Docker Hub') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                    sh "docker login -u $USERNAME -p \$PASSWORD"
-                    sh "docker tag containerize-angular-app:${VERSION} $USERNAME/containerize-angular-app:${VERSION}"
-                    sh "docker push $USERNAME/containerize-angular-app:${VERSION}"
+               withCredentials([string(credentialsId: 'docker-hub-access-token', variable: 'DOCKER_ACCESS_TOKEN')]) {
+                    sh "echo $DOCKER_ACCESS_TOKEN | docker login -u sphamandla38 --password-stdin"
+                    sh "docker tag containerize-angular-app:${VERSION} sphamandla38/containerize-angular-app:${VERSION}"
+                    sh "docker push sphamandla38/containerize-angular-app:${VERSION}"
                 }
             }
         }
