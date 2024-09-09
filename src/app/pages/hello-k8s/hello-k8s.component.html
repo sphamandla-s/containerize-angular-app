@@ -1,3 +1,93 @@
-<h1 class="text-3xl font-bold underline text-center text-blue-700">
-    Hello world! I'm running in k8s
-</h1>
+<main class="font-sans text-gray-900 bg-gray-100">
+    <div class="max-w-4xl p-6 mx-auto">
+        <h1 class="mb-4 text-3xl font-bold">Kubernetes Deployment Overview</h1>
+        <p class="mb-6">
+            This document outlines the configuration for deploying an Angular application using Kubernetes. It includes the deployment, service, and ingress definitions.
+        </p>
+
+        <h2 class="mb-3 text-2xl font-semibold">1. Deployment</h2>
+        <p class="mb-4">
+            The Deployment resource ensures that the Angular application is running in the Kubernetes cluster with specified replicas and resources.
+        </p>
+        <pre class="p-4 overflow-x-auto bg-gray-200 rounded-lg">
+<code class="text-sm">
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: containerize-angular-app-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: containerize-angular-app
+  template:
+    metadata:
+      labels:
+        app: containerize-angular-app
+    spec:
+      containers:
+        - name: containerize-angular-app
+          image: sphamandla38/containerize-angular-app:0.0.1
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+</code>
+        </pre>
+
+        <h2 class="mb-3 text-2xl font-semibold">2. Service</h2>
+        <p class="mb-4">
+            The Service resource exposes the Angular application within the cluster, allowing communication between different components.
+        </p>
+        <pre class="p-4 overflow-x-auto bg-gray-200 rounded-lg">
+<code class="text-sm">
+apiVersion: v1
+kind: Service
+metadata:
+  name: containerize-angular-app-service
+spec:
+  type: ClusterIP
+  selector:
+    app: containerize-angular-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+</code>
+        </pre>
+
+        <h2 class="mb-3 text-2xl font-semibold">3. Ingress</h2>
+        <p class="mb-4">
+            The Ingress resource provides external access to the Angular application, routing HTTP requests to the appropriate service based on the specified rules.
+        </p>
+        <pre class="p-4 overflow-x-auto bg-gray-200 rounded-lg">
+<code class="text-sm">
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: containerize-angular-app-ingress
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /containerize-angular-app/
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: containerize-angular-app.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: containerize-angular-app-service
+                port:
+                  number: 80
+</code>
+        </pre>
+    </div>
+</main>

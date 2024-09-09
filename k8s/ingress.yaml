@@ -4,15 +4,15 @@ metadata:
   name: containerize-angular-app-ingress
   namespace: default
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /containerize-angular-app/$2
+    nginx.ingress.kubernetes.io/rewrite-target: /containerize-angular-app/
 spec:
   ingressClassName: nginx
   rules:
     - host: containerize-angular-app.dev
       http:
         paths:
-          - path: /containerize-angular-app(/|$)(.*)
-            pathType: ImplementationSpecific
+          - path: /
+            pathType: Prefix
             backend:
               service:
                 name: containerize-angular-app-service

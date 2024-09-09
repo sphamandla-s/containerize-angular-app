@@ -1,3 +1,59 @@
-<h1 class="text-3xl font-bold underline text-center text-red-800">
-    Hello world! I'm running in Docker
-</h1>
+<div class="max-w-4xl p-6 mx-auto">
+    <h1 class="mb-4 text-3xl font-bold">NGINX and Docker Configuration Overview</h1>
+    <p class="mb-6">
+        This document details the NGINX configuration and the Dockerfile used to containerize and deploy an Angular application. The setup involves configuring the web server and ensuring the application is served correctly.
+    </p>
+
+    <h2 class="mb-3 text-2xl font-semibold">1. Dockerfile</h2>
+    <p class="mb-4">
+        The Dockerfile is used to build a Docker image that serves the Angular application using NGINX. It specifies the base image, copies the necessary configuration and files, exposes the required port, and starts NGINX.
+    </p>
+    <pre class="p-4 overflow-x-auto bg-gray-200 rounded-lg">
+<code class="text-sm">
+FROM nginx:latest
+
+COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+
+COPY dist/containerize-angular-app/browser /usr/share/nginx/html/containerize-angular-app
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
+</code>
+    </pre>
+
+    <h2 class="mb-3 text-2xl font-semibold">2. NGINX Configuration</h2>
+    <p class="mb-4">
+        The NGINX configuration file defines how the server handles requests. It listens on port 80, serves the Angular application, and includes a custom error page for server errors.
+    </p>
+    <pre class="p-4 overflow-x-auto bg-gray-200 rounded-lg">
+<code class="text-sm">
+server 
+    listen 80;
+    server_name localhost;
+
+    location /containerize-angular-app 
+        root /usr/share/nginx/html;
+        index index.html;
+        try_files $uri $uri/ /containerize-angular-app/index.html;
+    
+
+    error_page 500 502 503 504 /50x.html;
+    location = /50x.html 
+        root /usr/share/nginx/html;
+    
+
+</code>
+    </pre>
+
+    <h2 class="mb-3 text-2xl font-semibold">3. Explanation of Key Components</h2>
+    <ul class="pl-6 mb-4 list-disc">
+        <li><strong>Base Image:</strong> The <code>nginx:latest</code> base image is used to run NGINX, a high-performance web server.</li>
+        <li><strong>Configuration Copy:</strong> The <code>nginx.conf</code> file is copied to configure NGINX according to the needs of the Angular application.</li>
+        <li><strong>Application Files:</strong> The built Angular application is copied to the appropriate directory within the NGINX container.</li>
+        <li><strong>Port Exposure:</strong> Port 80 is exposed to handle HTTP requests.</li>
+        <li><strong>CMD:</strong> The NGINX server is started with the command <code>nginx -g 'daemon off;'</code>, keeping it running in the foreground.</li>
+        <li><strong>Try Files:</strong> The <code>try_files</code> directive ensures that the Angular application routes are handled correctly, falling back to the <code>index.html</code> file if a direct match isn’t found.</li>
+        <li><strong>Error Handling:</strong> Custom error pages are configured to display user-friendly messages in case of server errors.</li>
+    </ul>
+</div>
