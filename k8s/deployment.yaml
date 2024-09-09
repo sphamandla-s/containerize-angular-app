@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: containerize-angular-app
-          image: sphamandla38/containerize-angular-app:0.0.1
+          image: sphamandla38/containerize-angular-app:0.0.3
           ports:
             - containerPort: 80
           resources:
